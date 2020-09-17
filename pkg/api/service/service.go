@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/base64"
 	"github.com/sid-sun/notes-api/pkg/api/contract/db"
 	"github.com/sid-sun/notes-api/pkg/api/store"
 	"go.uber.org/zap"
@@ -25,7 +26,7 @@ type NotesService struct {
 // Create creates a new record in DB, handling translations
 func (n NotesService) Create(id string, data db.Data) error {
 	hash := sha3.Sum256([]byte(id))
-	n.store.Put(string(hash[:]), data)
+	n.store.Put(base64.StdEncoding.EncodeToString(hash[:]), data)
 	return nil
 }
 
@@ -33,13 +34,13 @@ func (n NotesService) Create(id string, data db.Data) error {
 // and returns a db data, handling translations
 func (n NotesService) Get(id string) (db.Data, error) {
 	hash := sha3.Sum256([]byte(id))
-	return n.store.Get(string(hash[:])), nil
+	return n.store.Get(base64.StdEncoding.EncodeToString(hash[:])), nil
 }
 
 // Update updates records in DB, handling translations
 func (n NotesService) Update(id string, data db.Data) error {
 	hash := sha3.Sum256([]byte(id))
-	n.store.Put(string(hash[:]), data)
+	n.store.Put(base64.StdEncoding.EncodeToString(hash[:]), data)
 	return nil
 }
 
@@ -47,7 +48,7 @@ func (n NotesService) Update(id string, data db.Data) error {
 // handing translations and deleting nothing
 func (n NotesService) Delete(id string) error {
 	hash := sha3.Sum256([]byte(id))
-	n.store.Delete(string(hash[:]))
+	n.store.Delete(base64.StdEncoding.EncodeToString(hash[:]))
 	return nil
 }
 
@@ -55,7 +56,7 @@ func (n NotesService) Delete(id string) error {
 // and returns true if the record is non-zero
 func (n NotesService) Exists(id string) (bool, error) {
 	hash := sha3.Sum256([]byte(id))
-	d := n.store.Get(string(hash[:]))
+	d := n.store.Get(base64.StdEncoding.EncodeToString(hash[:]))
 	// If empty, data does NOT exist so NOT it
 	return !d.IsEmpty(), nil
 }
